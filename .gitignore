@@ -1,0 +1,8 @@
+node_modules
+venv
+__pycache__
+.env
+sql_app.db
+debug_images/
+*.pyc
+.DS_Store

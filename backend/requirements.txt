@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+pydantic-settings
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+pymupdf
+google-generativeai
+email-validator
+bcrypt==4.0.1
+pillow
+python-dotenv
