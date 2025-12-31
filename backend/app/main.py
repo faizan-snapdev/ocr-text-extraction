@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import Base, engine
-from app.api.v1 import auth, extraction, config
+from app.api.v1 import extraction, config
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -30,7 +30,6 @@ app.add_middleware(
 )
 
 # Include Routers
-app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
 app.include_router(extraction.router, prefix=f"{settings.API_V1_STR}/extraction", tags=["Extraction"])
 app.include_router(config.router, prefix=f"{settings.API_V1_STR}/config", tags=["Configuration"])
 

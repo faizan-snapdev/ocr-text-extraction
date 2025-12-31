@@ -42,15 +42,7 @@ const History = () => {
 
   const fetchHistory = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-          return;
-      }
-      const response = await fetch("/api/v1/extraction/history", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch("/api/v1/extraction/history");
 
       if (!response.ok) {
         throw new Error("Failed to fetch history");
@@ -71,14 +63,8 @@ const History = () => {
     if (!confirm("Are you sure you want to delete this extraction?")) return;
 
     try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
         const response = await fetch(`/api/v1/extraction/history/${id}`, {
             method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
 
         if (!response.ok) {

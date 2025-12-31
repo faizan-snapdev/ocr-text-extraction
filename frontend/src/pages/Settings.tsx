@@ -20,15 +20,7 @@ const Settings = () => {
   const fetchKeyStatus = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem("token");
-      const headers: HeadersInit = {};
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-
-      const response = await fetch("/api/v1/config/gemini-key", {
-        headers,
-      });
+      const response = await fetch("/api/v1/config/gemini-key");
 
       if (!response.ok) {
         throw new Error("Failed to fetch API key status");
@@ -54,13 +46,9 @@ const Settings = () => {
 
     try {
       setIsSaving(true);
-      const token = localStorage.getItem("token");
       const headers: HeadersInit = {
         "Content-Type": "application/json",
       };
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
 
       const response = await fetch("/api/v1/config/gemini-key", {
         method: "POST",
