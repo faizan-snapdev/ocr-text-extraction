@@ -31,15 +31,6 @@ const PdfUpload: React.FC<PdfUploadProps> = ({
       setProgress(0);
       onProcessingStart(selectedFile.name);
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        showError("You must be logged in to upload files.");
-        setProcessing(false);
-        setFile(null);
-        navigate("/login");
-        return;
-      }
-
       const formData = new FormData();
       formData.append("file", selectedFile);
 
@@ -55,19 +46,10 @@ const PdfUpload: React.FC<PdfUploadProps> = ({
       try {
         const response = await fetch("/api/v1/extraction/upload", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           body: formData,
         });
 
         clearInterval(progressInterval);
-
-        if (response.status === 401 || response.status === 403) {
-          showError("Session expired or invalid. Please login again.");
-          navigate("/login");
-          return;
-        }
 
         if (!response.ok) {
           const errorData = await response.json();

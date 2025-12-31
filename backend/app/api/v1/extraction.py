@@ -4,8 +4,6 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.api.deps import get_current_user
-from app.models.user import User
 from app.models.extraction import Extraction
 from app.schemas import extraction as extraction_schema
 from google.api_core.exceptions import ResourceExhausted
@@ -21,14 +19,13 @@ router = APIRouter()
 async def upload_pdf(
     *,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
     file: UploadFile = File(...)
 ) -> Any:
     """
     Upload a PDF file, extract text, refine it with Gemini, and save the result.
     """
     start_time = time.time()
-    logger.info(f"User {current_user.id} started uploading file: {file.filename}")
+    logger.info(f"Started uploading file: {file.filename}")
 
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Invalid file type. Only PDF allowed.")
@@ -68,7 +65,6 @@ async def upload_pdf(
 
     # 3. Save to database
     extraction = Extraction(
-        user_id=current_user.id,
         filename=file.filename,
         file_size=file_size,
         extracted_text=raw_text,
@@ -86,14 +82,12 @@ def read_history(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
-    Retrieve extraction history for the current user.
+    Retrieve extraction history.
     """
     extractions = (
         db.query(Extraction)
-        .filter(Extraction.user_id == current_user.id)
         .offset(skip)
         .limit(limit)
         .all()
@@ -105,7 +99,6 @@ def read_extraction(
     *,
     db: Session = Depends(get_db),
     id: int,
-    current_user: User = Depends(get_current_user),
 ) -> Any:
     """
     Get a specific extraction by ID.
@@ -113,8 +106,6 @@ def read_extraction(
     extraction = db.query(Extraction).filter(Extraction.id == id).first()
     if not extraction:
         raise HTTPException(status_code=404, detail="Extraction not found")
-    if extraction.user_id != current_user.id:
-        raise HTTPException(status_code=400, detail="Not enough permissions")
     return extraction
 
 @router.delete("/history/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -122,7 +113,6 @@ def delete_extraction(
     *,
     db: Session = Depends(get_db),
     id: int,
-    current_user: User = Depends(get_current_user),
 ):
     """
     Delete an extraction.
@@ -130,8 +120,6 @@ def delete_extraction(
     extraction = db.query(Extraction).filter(Extraction.id == id).first()
     if not extraction:
         raise HTTPException(status_code=404, detail="Extraction not found")
-    if extraction.user_id != current_user.id:
-        raise HTTPException(status_code=400, detail="Not enough permissions")
     
     db.delete(extraction)
     db.commit()

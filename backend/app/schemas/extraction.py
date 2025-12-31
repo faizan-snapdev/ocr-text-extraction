@@ -13,7 +13,6 @@ class ExtractionCreate(ExtractionBase):
 
 class Extraction(ExtractionBase):
     id: int
-    user_id: int
     created_at: datetime
     processing_time: Optional[float] = None
 
